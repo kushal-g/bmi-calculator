@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'sex_content.dart';
 import 'reusable_card.dart';
+import 'constants.dart';
 
-const bottomContainerHeight = 80.0;
-const activeCardColor = Color(0xFF1D1E33);
-const inactiveCardColor = Color(0xFF11132A);
-const bottomContainerColor = Color(0xFFEB1555);
+enum Gender {male,female}
 
 
 class InputPage extends StatefulWidget {
@@ -16,20 +14,10 @@ class InputPage extends StatefulWidget {
 
 class _InputPageState extends State<InputPage> {
 
-  Color maleCardColor = inactiveCardColor;
-  Color femaleCardColor = inactiveCardColor;
-
-  void updateGender(int gender){
-    
-    if(gender==1){
-      
-      maleCardColor = activeCardColor;
-      femaleCardColor = inactiveCardColor;
-    }else{
-      femaleCardColor = activeCardColor;
-      maleCardColor = inactiveCardColor;
-    }
-  }
+  Gender selectedGender;
+  int height = 180;
+  Integer weight = Integer(value:55);
+  Integer age = Integer(value:18);
 
   @override
   Widget build(BuildContext context) {
@@ -43,34 +31,85 @@ class _InputPageState extends State<InputPage> {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child:GestureDetector(
-                      onTap: (){
+                  child:ReusableCard(
+                  cardOnTap:  (){
+                    this.setState((){
+                      selectedGender = Gender.male;
+                    });
+                  },
+                  colour:selectedGender==Gender.male?kActiveCardColor:kInactiveCardColor,
+                  cardChild: SexContent(
+                    label:'Male',
+                    icon:FontAwesomeIcons.mars
+                  ),
+                    )
+                ),
+                Expanded(
+                  child:ReusableCard(
+                    cardOnTap: (){
                         this.setState((){
-                          this.updateGender(1);
+                          selectedGender = Gender.female;
                         });
                       },
-                      child: ReusableCard(
-                      colour:maleCardColor,
-                      cardChild: SexContent(
-                        label:'Male',
-                        icon:FontAwesomeIcons.mars
+                    colour:selectedGender == Gender.female?kActiveCardColor:kInactiveCardColor,
+                    cardChild:SexContent(
+                      label:'Female',
+                      icon:FontAwesomeIcons.venus
+                    )
+                  )
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child:ReusableCard(
+                    colour:kActiveCardColor,
+                    cardChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:<Widget>[
+                        Text(
+                          'HEIGHT',
+                          style:kLabelTextStyle
+                        ),
+                        Row(
+                          textBaseline: TextBaseline.alphabetic,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          children: <Widget>[
+                            Text(
+                              height.toString(),
+                              style: kStatStyle
+                            ),
+                            Text(
+                              'cm',
+                              style: kLabelTextStyle,
+                            )
+                        ],
                       ),
-                    ),
-                  )
-                ),
-                Expanded(
-                  child:GestureDetector(
-                      onTap: (){
-                        this.setState((){
-                          this.updateGender(2);
-                        });
-                      },
-                      child: ReusableCard(
-                      colour:femaleCardColor,
-                      cardChild:SexContent(
-                        label:'Female',
-                        icon:FontAwesomeIcons.venus
+                      SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: Colors.white,
+                            overlayColor:Color(0x29EB1555),
+                            thumbColor: Color(0xFFEB1555),
+                            thumbShape: RoundSliderThumbShape(enabledThumbRadius: 15.0),
+                            overlayShape: RoundSliderOverlayShape(overlayRadius:30.0)
+                          ),
+                          child: Slider(
+                          onChanged: (double newValue){
+                            this.setState((){
+                              height = newValue.toInt();
+                            });
+                          },
+                          inactiveColor: Color(0xFF8D8E98),
+                          value:height.toDouble(),
+                          min:120,
+                          max:220
+                        ),
                       )
+                      ]
                     ),
                   )
                 )
@@ -82,33 +121,32 @@ class _InputPageState extends State<InputPage> {
               children: <Widget>[
                 Expanded(
                   child:ReusableCard(
-                    colour:activeCardColor
-                  )
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child:ReusableCard(
-                    colour:activeCardColor
+                    cardChild: PlusMinusWidget(
+                      label:'Weight',
+                      stat: weight,
+                      parent : this
+                    ),
+                    colour:kActiveCardColor
                   )
                 ),
                 Expanded(
                   child:ReusableCard(
-                    colour:activeCardColor
+                    cardChild: PlusMinusWidget(
+                      label:'Age',
+                      stat: age,
+                      parent : this
+                    ),
+                    colour:kActiveCardColor
                   )
                 )
               ],
             ),
           ),
           Container(
-            color:bottomContainerColor,
+            color:kBottomContainerColor,
             margin:EdgeInsets.only(top:10),
             width:double.infinity,
-            height: bottomContainerHeight,
+            height: kBottomContainerHeight,
           )
         ],
       )
@@ -116,3 +154,64 @@ class _InputPageState extends State<InputPage> {
   }
 }
 
+class PlusMinusWidget extends StatelessWidget {
+  
+  final String label;
+  final Integer stat;
+  final _InputPageState parent;
+  PlusMinusWidget({this.stat,this.parent,this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children:<Widget>[
+        Text(label,style:kLabelTextStyle),
+        Text(stat.value.toString(),style:kStatStyle),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+          RoundIconButton(
+            onPress:(){
+              parent.setState((){
+                stat.value--;
+              });
+            },
+            icon:FontAwesomeIcons.minus
+          ),
+          SizedBox(width: 20,),
+          RoundIconButton(
+            onPress: (){
+              parent.setState((){
+                stat.value++;
+              });
+            },
+            icon:FontAwesomeIcons.plus
+          ),
+        ],)
+      ]
+    );
+  }
+}
+
+class RoundIconButton extends StatelessWidget {
+  
+  final IconData icon;
+  final Function onPress;
+  RoundIconButton({this.icon,this.onPress});
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      child:Icon(icon),
+      onPressed: (){this.onPress();},
+      elevation: 6,
+      shape:CircleBorder(),
+      fillColor: Color(0xFF4C4F5E),
+      constraints: BoxConstraints.tightFor(
+        width:56,
+        height:56,
+      ),
+    );
+  }
+}
