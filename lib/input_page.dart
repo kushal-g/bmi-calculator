@@ -1,3 +1,4 @@
+import 'package:bmi_calculator/Calculator_brain.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'sex_content.dart';
@@ -142,11 +143,34 @@ class _InputPageState extends State<InputPage> {
               ],
             ),
           ),
-          Container(
-            color:kBottomContainerColor,
-            margin:EdgeInsets.only(top:10),
-            width:double.infinity,
-            height: kBottomContainerHeight,
+          GestureDetector(
+            onTap: (){
+              CalculatorBrain brain =CalculatorBrain(height: this.height,weight:this.weight.value);  
+              Navigator.pushNamed(
+                context, "/result",
+                arguments: {
+                  'bmi':brain.getBmi(),
+                  'condition':brain.getCondition(),
+                  'interpretation':brain.getInterpretation(),
+                }
+              );
+            },
+            child: Container(
+              child:Center(
+                child: Text(
+                  'CALCULATE',
+                  style:TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 3
+                  )
+                ),
+              ),
+              color:kBottomContainerColor,
+              margin:EdgeInsets.only(top:10),
+              width:double.infinity,
+              height: kBottomContainerHeight,
+            ),
           )
         ],
       )
